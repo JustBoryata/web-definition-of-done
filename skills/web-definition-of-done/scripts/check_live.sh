@@ -4,6 +4,10 @@
 # Usage: check_live.sh <https://site.example> [--wordpress]
 
 set -u
+
+# Output quotes the remote site's headers and HTML: strip terminal control characters.
+exec > >(LC_ALL=C tr -d '\000-\010\013-\037\177') 2>&1
+
 URL="${1:?usage: check_live.sh <url> [--wordpress]}"
 URL="${URL%/}"
 WP=0; [ "${2:-}" = "--wordpress" ] && WP=1
@@ -14,7 +18,7 @@ HOST=$(printf '%s' "$URL" | sed -E 's#^https?://##; s#/.*##')
 section() { printf '\n=== %s ===\n' "$1"; }
 
 section "HTTPS redirect (SEC-14)"
-"${C[@]}" -o /dev/null -w 'http://%{url_effective} -> %{http_code} %{redirect_url}\n' "http://$HOST/"
+"${C[@]}" -o /dev/null -w '%{url_effective} -> %{http_code} %{redirect_url}\n' "http://$HOST/"
 "${C[@]}" -o /dev/null -w 'https status: %{http_code}  tls-verify: %{ssl_verify_result} (0 = ok)\n' "https://$HOST/"
 
 section "Response headers (SEC-15..18)"

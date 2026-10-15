@@ -28,7 +28,7 @@ This file adds WordPress-specific checks to `security.md`. Most WP vulnerabiliti
 
 ## Site configuration (needs a running site or wp-config access)
 
-- **WP-19 Core, themes and plugins are up to date.** Run `wp core verify-checksums` and `wp plugin verify-checksums --all` if WP-CLI is available. Remove unused and inactive plugins and themes, because inactive plugins still carry exploitable code.
+- **WP-19 Core, themes and plugins are up to date.** On a trusted site, run `wp core verify-checksums` and `wp plugin verify-checksums --all` if WP-CLI is available (WP-CLI executes the site's PHP; see SKILL.md step 4). Remove unused and inactive plugins and themes, because inactive plugins still carry exploitable code.
 - **WP-20 Plugin provenance.** Every plugin comes from wp.org or a reputable vendor with a licence. No nulled premium plugins. Check for known-vulnerable versions (WPScan/Patchstack/Wordfence databases, if the owner has access).
 - **WP-21 `wp-config.php` hardening.** `WP_DEBUG` false on production (or `WP_DEBUG_LOG` pointing outside the web root with `WP_DEBUG_DISPLAY` false). `DISALLOW_FILE_EDIT` true. Unique salts. A non-default table prefix is nice to have.
 - **WP-22 User enumeration & XML-RPC.** `/?author=1` and `/wp-json/wp/v2/users` don't expose login names to anonymous users unless that's intended. XML-RPC is disabled if nothing (Jetpack, the mobile app) needs it. `check_live.sh` tests these.
@@ -37,6 +37,9 @@ This file adds WordPress-specific checks to `security.md`. Most WP vulnerabiliti
 - **WP-25 Privacy tooling.** Settings → Privacy has a privacy policy page assigned. WooCommerce sites set retention and erasure options (see `privacy-legal.md`).
 
 ## Tools
+
+These execute or load project code. Run them on trusted projects only (see Safety in SKILL.md).
+
 
 - `phpcs --standard=WordPress` (WordPress Coding Standards, including the `WordPress.Security` sniffs: EscapeOutput, NonceVerification, ValidatedSanitizedInput, `WordPress.DB.PreparedSQL`). Use it if it's installed. The security sniffs alone are the highest-value part.
 - `wp` (WP-CLI) for checksums, plugin versions, `wp option get` and `wp user list --role=administrator`.

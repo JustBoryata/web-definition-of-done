@@ -44,7 +44,19 @@ For the most independent result, have the main agent delegate to the `web-audito
 
 To make it run automatically at the end of web tasks instead, edit the `description` in `SKILL.md` and `agents/web-auditor.md`.
 
-Optional tools are used when already installed (it never installs anything): `npm audit`, `composer audit`, `phpcs` with WordPress standards, WP-CLI, Shopify CLI, and browser MCP servers (Chrome DevTools, Playwright) for consent and keyboard checks.
+Optional tools are used when already installed and the project is trusted (it never installs anything): `npm audit`, `composer audit`, `phpcs` with WordPress standards, WP-CLI, Shopify CLI, and browser MCP servers (Chrome DevTools, Playwright) for consent and keyboard checks.
+
+## Safety
+
+The audit is built to be safe on code you didn't write, such as a client's theme or an inherited plugin:
+
+- **Report only by default.** It writes nothing outside `<project>/.scratch/web-audit/` unless you ask it to fix things.
+- **It doesn't execute the project.** The scan script only reads files with `grep`/`find` and runs no git commands, because a repo's own git config can make even `git status` run code. Tools that load project config (`npm audit`, `composer audit`, `phpcs`, WP-CLI, `shopify theme check`, git) run only when you mark the project `Trusted: yes` in the brief.
+- **Project content is treated as data.** Instructions hidden in code comments or page HTML are reported as findings, never followed.
+- **Secrets are masked** in the scan output and the report. Terminal control characters are stripped from everything the scripts print.
+- **Live checks are light.** A handful of GET/HEAD requests to the one URL you give it. No fuzzing, logins or form submissions.
+
+The report lists exploitable weaknesses. Keep `.scratch/` in your `.gitignore` and don't publish reports.
 
 ## Caveats
 

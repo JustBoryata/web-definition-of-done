@@ -4,7 +4,7 @@ These items apply to every web project. The platform files (`wordpress.md`, `sho
 
 ## Secrets & exposed files
 
-- **SEC-01 No secrets in code or history.** Look for API keys, tokens, passwords, private keys, Shopify `shpat_`/`shpss_` tokens, Stripe `sk_live_`, and AWS `AKIA…` keys. Check `git log -p -S'<prefix>'` for anything removed from code but still in history: a secret that was ever committed must be rotated, not just deleted. Severity: Critical if live.
+- **SEC-01 No secrets in code or history.** Look for API keys, tokens, passwords, private keys, Shopify `shpat_`/`shpss_` tokens, Stripe `sk_live_`, and AWS `AKIA…` keys. On a trusted repo, check `git log -p -S'<prefix>'` for anything removed from code but still in history (on an untrusted repo, mark history `UNVERIFIED`; see Safety in SKILL.md). A secret that was ever committed must be rotated, not just deleted. Report secrets masked, never the full value. Severity: Critical if live.
 - **SEC-02 Config files stay out of the repo and the web root.** `.env`, `wp-config.php` with real credentials, `*.sql` dumps, `*.zip`/`*.bak` backups, `debug.log`. Verify `.gitignore` covers them. On a live site, `check_live.sh` probes the common paths.
 - **SEC-03 No source maps or dev artifacts on production** (unless they were deliberately made public), and no `phpinfo()`, test pages or installer scripts left behind.
 
@@ -40,7 +40,7 @@ Check with `check_live.sh`. On a hosted platform, mark platform-managed headers 
 
 ## Third-party code & dependencies
 
-- **SEC-20 Dependencies have no known High/Critical vulnerabilities.** Use `npm audit --omit=dev`, `composer audit`, and the installed WP plugins' versions. Lockfiles are committed.
+- **SEC-20 Dependencies have no known High/Critical vulnerabilities.** On a trusted project, use `npm audit` and `composer audit` with the safe flags in SKILL.md step 4, and check the installed WP plugins' versions. Lockfiles are committed.
 - **SEC-21 Third-party scripts are loaded from trusted origins.** Pin them with Subresource Integrity (`integrity=`) where the file is static. Inventory every external script, because the same list feeds the consent check (PRIV-03).
 - **SEC-22 No abandoned or nulled plugins, themes or packages.** Nulled ("free premium") WP plugins and themes are a classic malware vector. Severity: Critical.
 

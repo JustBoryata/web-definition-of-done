@@ -18,7 +18,7 @@ Shopify hosts the storefront, so TLS, server headers, checkout PCI scope and cor
 
 ## Themes: quality & performance
 
-- **SHOP-09 `shopify theme check` passes** with no errors. Use it if the CLI is installed; otherwise mark `UNVERIFIED` and give the command `shopify theme check --path <theme>`.
+- **SHOP-09 `shopify theme check` passes** with no errors. Use it if the CLI is installed and the project is trusted; otherwise mark `UNVERIFIED` and give the command `shopify theme check --path <theme>`.
 - **SHOP-10 Images** use `image_url` with explicit `width` and `image_tag` (or `srcset`/`sizes` via `image_tag: widths:`), have `loading: 'lazy'` below the fold (not on the hero/LCP image), and output width/height to prevent CLS. No hard-coded CDN URLs at full resolution.
 - **SHOP-11 Assets.** JS is `defer`/`type="module"`. No parser-blocking `<script src>` in `<head>`. No jQuery or other large libraries unless they're genuinely needed. Use `stylesheet_tag`/`asset_url`, and use `preload` sparingly. Liquid render cost stays reasonable: no nested loops over `all_products` or large collections.
 - **SHOP-12 Sections & blocks are configurable and safe.** The schema has sensible defaults, `info` texts and limits. Settings have `"type"`s that match their use (e.g. `url` for links, `richtext` vs `text`). Sections work in any order and when empty. Presets exist for the theme editor.
