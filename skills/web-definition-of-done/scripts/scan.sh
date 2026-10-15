@@ -49,13 +49,15 @@ echo "Detected: $PLATFORM"
 if [ -d "$ROOT/.git" ]; then
   echo "Git: yes"
   # The audited repo may be untrusted: its .git/config can make `git status` run commands
-  # (core.fsmonitor, clean/smudge filter drivers, index hooks). Neutralise those, and skip
-  # status entirely when the repo defines filter drivers.
-  if git -C "$ROOT" config --local --get-regexp '^filter\.' >/dev/null 2>&1; then
-    echo "note: repo config defines git filter drivers; skipped git status (run it yourself if you trust the repo)"
+  # (core.fsmonitor, clean/smudge filter drivers, index hooks), including through included
+  # config files and submodules. Neutralise what we can, and skip status entirely when the
+  # repo defines filter drivers (directly or via includes) or has submodules.
+  if git -C "$ROOT" config --local --includes --get-regexp '^filter\.' >/dev/null 2>&1 \
+     || [ -f "$ROOT/.gitmodules" ] || [ -d "$ROOT/.git/modules" ]; then
+    echo "note: repo defines git filter drivers or submodules; skipped git status (run it yourself if you trust the repo)"
   else
     git -c core.fsmonitor=false -c core.hooksPath=/dev/null --no-optional-locks -C "$ROOT" \
-      status --short 2>/dev/null | head -n 30
+      status --short --ignore-submodules=all 2>/dev/null | head -n 30
   fi
 fi
 
