@@ -46,21 +46,10 @@ if [ -f "$ROOT/layout/theme.liquid" ] || [ -d "$ROOT/sections" -a -d "$ROOT/snip
 fi
 if [ -f "$ROOT/shopify.app.toml" ]; then PLATFORM="shopify-app"; fi
 echo "Detected: $PLATFORM"
-if [ -d "$ROOT/.git" ]; then
-  echo "Git: yes"
-  # The audited repo may be untrusted: its .git/config can make `git status` run commands
-  # (core.fsmonitor, clean/smudge filter drivers, index hooks), including through included
-  # config files, per-worktree config and submodules. Neutralise what we can, and skip status
-  # entirely when the repo's own config defines filter drivers or the repo has submodules.
-  # Global/system config is excluded from the check: it belongs to the auditor, not the repo.
-  if GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
-       git -C "$ROOT" config --includes --get-regexp '^filter\.' >/dev/null 2>&1 \
-     || [ -f "$ROOT/.gitmodules" ] || [ -d "$ROOT/.git/modules" ]; then
-    echo "note: repo defines git filter drivers or submodules; skipped git status (run it yourself if you trust the repo)"
-  else
-    git -c core.fsmonitor=false -c core.hooksPath=/dev/null --no-optional-locks -C "$ROOT" \
-      status --short --ignore-submodules=all 2>/dev/null | head -n 30
-  fi
+# Deliberately no git commands here: the audited repo may be untrusted, and its git config
+# can make even `git status` run commands (fsmonitor, filter drivers, hooks, submodules).
+if [ -e "$ROOT/.git" ]; then
+  echo "Git: yes (not run by this scan; use git status / git diff yourself if you trust the repo)"
 fi
 
 # --- secrets & exposed files ----------------------------------------------
