@@ -46,7 +46,18 @@ if [ -f "$ROOT/layout/theme.liquid" ] || [ -d "$ROOT/sections" -a -d "$ROOT/snip
 fi
 if [ -f "$ROOT/shopify.app.toml" ]; then PLATFORM="shopify-app"; fi
 echo "Detected: $PLATFORM"
-[ -d "$ROOT/.git" ] && { echo "Git: yes"; git -C "$ROOT" status --short 2>/dev/null | head -n 30; }
+if [ -d "$ROOT/.git" ]; then
+  echo "Git: yes"
+  # The audited repo may be untrusted: its .git/config can make `git status` run commands
+  # (core.fsmonitor, clean/smudge filter drivers, index hooks). Neutralise those, and skip
+  # status entirely when the repo defines filter drivers.
+  if git -C "$ROOT" config --local --get-regexp '^filter\.' >/dev/null 2>&1; then
+    echo "note: repo config defines git filter drivers; skipped git status (run it yourself if you trust the repo)"
+  else
+    git -c core.fsmonitor=false -c core.hooksPath=/dev/null --no-optional-locks -C "$ROOT" \
+      status --short 2>/dev/null | head -n 30
+  fi
+fi
 
 # --- secrets & exposed files ----------------------------------------------
 section "Secrets (SEC-01) - rotate anything real, even if later removed"
